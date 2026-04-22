@@ -1,0 +1,49 @@
+// Use this code at dbdiagram.io to visualize your database schema
+
+// 1. Categories Table
+Table categories {
+  category_id int [pk, increment]
+  category_code varchar [not null, unique]
+  category_name varchar [not null]
+  description text
+  created_at timestamp [default: `now()`]
+  modified_at timestamp [default: `now()`]
+}
+
+// 2. Products Table
+Table products {
+  product_id int [pk, increment]
+  product_code varchar [not null, unique]
+  product_name varchar [not null]
+  description text
+  price decimal(18,2) [not null]
+  category_id int [ref: > categories.category_id] // Foreign Key to Categories
+  is_available boolean [default: true]
+  created_at timestamp [default: `now()`]
+  modified_at timestamp [default: `now()`]
+}
+
+// 3. Sales Table (Voucher Summary)
+Table sales {
+  sale_id int [pk, increment]
+  sale_code varchar [not null, unique]
+  customer_name varchar
+  total_amount decimal(18,2) [not null]
+  discount_amount decimal(18,2) [default: 0]
+  net_amount decimal(18,2) [not null]
+  payment_type varchar
+  created_at timestamp [default: `now()`]
+  modified_at timestamp [default: `now()`]
+}
+
+// 4. SaleItems Table (Voucher Details)
+Table sale_items {
+  sale_item_id int [pk, increment]
+  sale_id int [ref: > sales.sale_id] // Foreign Key to Sales
+  product_id int [ref: > products.product_id] // Foreign Key to Products
+  unit_price decimal(18,2) [not null]
+  quantity int [not null]
+  sub_amount decimal(18,2) [not null]
+  created_at timestamp [default: `now()`]
+  modified_at timestamp [default: `now()`]
+}
