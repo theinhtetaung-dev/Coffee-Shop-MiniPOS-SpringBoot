@@ -9,7 +9,6 @@ import lombok.Setter;
 @Setter
 
 public class SaleItem {
-
         private Integer saleItemId;
         private Integer saleId;
         private Integer productId;

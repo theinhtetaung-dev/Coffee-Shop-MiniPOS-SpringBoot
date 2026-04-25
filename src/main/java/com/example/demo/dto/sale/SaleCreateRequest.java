@@ -8,6 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SaleCreateRequest {
+        
         private String saleCode;
         private String customerName;
         private BigDecimal totalAmount;

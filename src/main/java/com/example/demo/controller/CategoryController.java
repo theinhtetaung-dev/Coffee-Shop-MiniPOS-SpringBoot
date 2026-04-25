@@ -9,8 +9,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
+public class CategoryController {
 
-private final CategoryService categoryService;
+    private final CategoryService categoryService;
 
 public  CategoryController(CategoryService categoryService) {
     this.categoryService = categoryService;
@@ -41,4 +42,6 @@ public CategoryResponse updateCategory(@PathVariable Integer id,
 public String deleteCategory(@PathVariable Integer id) {
     categoryService.deleteCategory(id);
     return "Category deleted successfully";
+    }
+
 }

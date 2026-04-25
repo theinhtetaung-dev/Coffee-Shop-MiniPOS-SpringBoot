@@ -18,3 +18,4 @@ public interface SaleService {
 
     void deleteSale(Integer saleId);
 }
+
