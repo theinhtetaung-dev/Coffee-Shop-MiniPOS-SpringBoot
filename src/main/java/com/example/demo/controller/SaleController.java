@@ -4,6 +4,7 @@ import com.example.demo.dto.PagedResponse;
 import com.example.demo.dto.sale.SaleCodeRequest;
 import com.example.demo.dto.sale.SaleCreateRequest;
 import com.example.demo.dto.sale.SaleResponse;
+import com.example.demo.dto.sale.SaleUpdateRequest;
 import com.example.demo.service.SaleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -80,8 +81,8 @@ public class SaleController {
     })
     @PutMapping
     public ResponseEntity<SaleResponse> updateSale(
-            @Valid @RequestBody SaleCreateRequest request) {
-        return ResponseEntity.ok(saleService.updateSale(request.getSaleCode(), request));
+            @Valid @RequestBody SaleUpdateRequest request) {
+        return ResponseEntity.ok(saleService.updateSale(request));
     }
 
     @Operation(

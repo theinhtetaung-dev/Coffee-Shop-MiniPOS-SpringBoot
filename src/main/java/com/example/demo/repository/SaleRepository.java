@@ -4,6 +4,8 @@ import com.example.demo.dto.sale.SaleCreateRequest;
 import com.example.demo.dto.sale.SaleItemRequest;
 import com.example.demo.dto.sale.SaleItemResponse;
 import com.example.demo.dto.sale.SaleResponse;
+import com.example.demo.dto.sale.SaleUpdateRequest;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -137,8 +139,7 @@ public class SaleRepository {
         }, saleId);
     }
 
-    // ─── Update by Code ───────────────────────────────────────────────────────
-    public int updateSaleByCode(String saleCode, SaleCreateRequest request) {
+    public int updateSaleByCode(SaleUpdateRequest request) {
         String sql = """
                 UPDATE sales
                 SET customer_name = ?, total_amount = ?, discount_amount = ?,
@@ -151,10 +152,9 @@ public class SaleRepository {
                 request.getDiscountAmount(),
                 request.getNetAmount(),
                 request.getPaymentType(),
-                saleCode);
+                request.getSaleCode());
     }
 
-    // ─── Delete ───────────────────────────────────────────────────────────────
     public void deleteSaleItemsBySaleId(Integer saleId) {
         jdbcTemplate.update("DELETE FROM sale_items WHERE sale_id = ?", saleId);
     }
@@ -164,7 +164,6 @@ public class SaleRepository {
         return jdbcTemplate.update(sql, saleCode);
     }
 
-    // ─── Existence checks ─────────────────────────────────────────────────────
     public boolean existsById(Integer saleId) {
         String sql = "SELECT COUNT(*) FROM sales WHERE sale_id = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, saleId);

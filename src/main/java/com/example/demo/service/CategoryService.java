@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.dto.PagedResponse;
 import com.example.demo.dto.category.CategoryCreateRequest;
 import com.example.demo.dto.category.CategoryResponse;
+import com.example.demo.dto.category.CategoryUpdateRequest;
 
 public interface CategoryService {
 
@@ -12,7 +13,7 @@ public interface CategoryService {
 
     CategoryResponse getCategoryByCode(String code);
 
-    CategoryResponse updateCategory(String code, CategoryCreateRequest request);
+    CategoryResponse updateCategory(CategoryUpdateRequest request);
 
     void deleteCategory(String code);
 }

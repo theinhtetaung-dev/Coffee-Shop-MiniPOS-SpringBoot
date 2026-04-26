@@ -3,6 +3,7 @@ package com.example.demo.service.impl;
 import com.example.demo.dto.PagedResponse;
 import com.example.demo.dto.sale.SaleCreateRequest;
 import com.example.demo.dto.sale.SaleResponse;
+import com.example.demo.dto.sale.SaleUpdateRequest;
 import com.example.demo.repository.SaleRepository;
 import com.example.demo.service.SaleService;
 import org.springframework.stereotype.Service;
@@ -17,8 +18,7 @@ public class SaleServiceImpl implements SaleService {
 
     private final SaleRepository saleRepository;
 
-    private static final DateTimeFormatter CODE_FORMATTER =
-            DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+    private static final DateTimeFormatter CODE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     public SaleServiceImpl(SaleRepository saleRepository) {
         this.saleRepository = saleRepository;
@@ -40,8 +40,10 @@ public class SaleServiceImpl implements SaleService {
 
     @Override
     public PagedResponse<SaleResponse> getAllSales(int page, int size) {
-        if (page < 0) throw new IllegalArgumentException("Page index must not be less than zero");
-        if (size < 1) throw new IllegalArgumentException("Page size must not be less than one");
+        if (page < 0)
+            throw new IllegalArgumentException("Page index must not be less than zero");
+        if (size < 1)
+            throw new IllegalArgumentException("Page size must not be less than one");
 
         List<SaleResponse> data = saleRepository.getAllSales(page, size);
         long total = saleRepository.countAll();
@@ -62,23 +64,24 @@ public class SaleServiceImpl implements SaleService {
 
     @Override
     @Transactional
-    public SaleResponse updateSale(String saleCode, SaleCreateRequest request) {
-        if (saleCode == null || saleCode.isBlank()) {
+    public SaleResponse updateSale(SaleUpdateRequest request) {
+        if (request.getSaleCode() == null || request.getSaleCode().isBlank()) {
             throw new IllegalArgumentException("Sale code must not be blank");
         }
-        SaleResponse existing = saleRepository.getSaleByCode(saleCode);
+ 
+        SaleResponse existing = saleRepository.getSaleByCode(request.getSaleCode());
         if (existing == null) {
-            throw new RuntimeException("Sale not found with code: " + saleCode);
+            throw new RuntimeException("Sale not found with code: " + request.getSaleCode());
         }
 
-        saleRepository.updateSaleByCode(saleCode, request);
+        saleRepository.updateSaleByCode(request);
 
         saleRepository.deleteSaleItemsBySaleId(existing.getSaleId());
         if (request.getItems() != null && !request.getItems().isEmpty()) {
             saleRepository.createSaleItems(existing.getSaleId(), request.getItems());
         }
 
-        return buildSaleDetail(saleRepository.getSaleByCode(saleCode));
+        return buildSaleDetail(saleRepository.getSaleByCode(request.getSaleCode()));
     }
 
     @Override

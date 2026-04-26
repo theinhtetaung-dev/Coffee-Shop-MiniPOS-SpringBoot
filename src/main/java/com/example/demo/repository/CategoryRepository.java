@@ -2,6 +2,8 @@ package com.example.demo.repository;
 
 import com.example.demo.dto.category.CategoryCreateRequest;
 import com.example.demo.dto.category.CategoryResponse;
+import com.example.demo.dto.category.CategoryUpdateRequest;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -21,12 +23,12 @@ public class CategoryRepository {
     }
 
     private CategoryResponse mapRow(java.sql.ResultSet rs, int rowNum) throws java.sql.SQLException {
-        CategoryResponse c = new CategoryResponse();
-        c.setCategoryId(rs.getInt("category_id"));
-        c.setCategoryCode(rs.getString("category_code"));
-        c.setCategoryName(rs.getString("category_name"));
-        c.setDescription(rs.getString("description"));
-        return c;
+        CategoryResponse categoryResponse = new CategoryResponse();
+        categoryResponse.setCategoryId(rs.getInt("category_id"));
+        categoryResponse.setCategoryCode(rs.getString("category_code"));
+        categoryResponse.setCategoryName(rs.getString("category_name"));
+        categoryResponse.setDescription(rs.getString("description"));
+        return categoryResponse;
     }
 
     public Integer createCategory(String categoryCode, CategoryCreateRequest request) {
@@ -89,8 +91,7 @@ public class CategoryRepository {
         return result.isEmpty() ? null : result.get(0);
     }
 
-    // ─── Update by Code ───────────────────────────────────────────────────────
-    public int updateCategoryByCode(String code, CategoryCreateRequest request) {
+    public int updateCategoryByCode(CategoryUpdateRequest request) {
         String sql = """
                 UPDATE categories
                 SET category_name = ?, description = ?
@@ -99,16 +100,14 @@ public class CategoryRepository {
         return jdbcTemplate.update(sql,
                 request.getCategoryName(),
                 request.getDescription(),
-                code);
+                request.getCategoryCode());
     }
 
-    // ─── Delete by Code ───────────────────────────────────────────────────────
     public int deleteCategoryByCode(String code) {
         String sql = "DELETE FROM categories WHERE category_code = ?";
         return jdbcTemplate.update(sql, code);
     }
 
-    // ─── Existence checks ─────────────────────────────────────────────────────
     public boolean existsById(Integer id) {
         String sql = "SELECT COUNT(*) FROM categories WHERE category_id = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, id);

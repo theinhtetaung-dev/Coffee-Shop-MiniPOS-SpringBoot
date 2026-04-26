@@ -3,6 +3,7 @@ package com.example.demo.service.impl;
 import com.example.demo.dto.PagedResponse;
 import com.example.demo.dto.category.CategoryCreateRequest;
 import com.example.demo.dto.category.CategoryResponse;
+import com.example.demo.dto.category.CategoryUpdateRequest;
 import com.example.demo.repository.CategoryRepository;
 import com.example.demo.service.CategoryService;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,6 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse createCategory(CategoryCreateRequest request) {
         Integer lastId = categoryRepository.getLastCategoryId();
         String categoryCode = "C-" + (lastId + 1);
-
         Integer newId = categoryRepository.createCategory(categoryCode, request);
         return categoryRepository.getCategoryById(newId);
     }
@@ -53,16 +53,14 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public CategoryResponse updateCategory(String code, CategoryCreateRequest request) {
-        if (code == null || code.isBlank()) {
-            throw new IllegalArgumentException("Category code must not be blank");
-        }
-        if (!categoryRepository.existsByCode(code)) {
-            throw new RuntimeException("Category not found with code: " + code);
+    public CategoryResponse updateCategory(CategoryUpdateRequest request) {
+ 
+        if (!categoryRepository.existsByCode(request.getCategoryCode())) {
+            throw new RuntimeException("Category not found with code: " + request.getCategoryCode());
         }
 
-        categoryRepository.updateCategoryByCode(code, request);
-        return categoryRepository.getCategoryByCode(code);
+        categoryRepository.updateCategoryByCode(request);
+        return categoryRepository.getCategoryByCode(request.getCategoryCode());
     }
 
     @Override
