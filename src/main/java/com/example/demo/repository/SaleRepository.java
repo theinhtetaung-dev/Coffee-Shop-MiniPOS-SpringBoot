@@ -22,18 +22,32 @@ public class SaleRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Integer createSale(SaleCreateRequest request) {
+    // ─── Helper: sale row mapper ──────────────────────────────────────────────
+    private SaleResponse mapSaleRow(java.sql.ResultSet rs, int rowNum) throws java.sql.SQLException {
+        SaleResponse response = new SaleResponse();
+        response.setSaleId(rs.getInt("sale_id"));
+        response.setSaleCode(rs.getString("sale_code"));
+        response.setCustomerName(rs.getString("customer_name"));
+        response.setTotalAmount(rs.getBigDecimal("total_amount"));
+        response.setDiscountAmount(rs.getBigDecimal("discount_amount"));
+        response.setNetAmount(rs.getBigDecimal("net_amount"));
+        response.setPaymentType(rs.getString("payment_type"));
+        response.setCreatedAt(rs.getTimestamp("created_at"));
+        return response;
+    }
+
+    // ─── Create ───────────────────────────────────────────────────────────────
+    public Integer createSale(String saleCode, SaleCreateRequest request) {
         String sql = """
                 INSERT INTO sales
                 (sale_code, customer_name, total_amount, discount_amount, net_amount, payment_type)
                 VALUES (?, ?, ?, ?, ?, ?)
                 """;
-
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, request.getSaleCode());
+            ps.setString(1, saleCode);
             ps.setString(2, request.getCustomerName());
             ps.setBigDecimal(3, request.getTotalAmount());
             ps.setBigDecimal(4, request.getDiscountAmount());
@@ -51,7 +65,6 @@ public class SaleRepository {
                 (sale_id, product_id, unit_price, quantity, sub_amount)
                 VALUES (?, ?, ?, ?, ?)
                 """;
-
         for (SaleItemRequest item : items) {
             jdbcTemplate.update(sql,
                     saleId,
@@ -62,50 +75,51 @@ public class SaleRepository {
         }
     }
 
-    public List<SaleResponse> getAllSales() {
+    // ─── Get all (paginated) ──────────────────────────────────────────────────
+    public List<SaleResponse> getAllSales(int page, int size) {
+        int offset = page * size;
         String sql = """
-                SELECT sale_id, sale_code, customer_name, total_amount, discount_amount, net_amount, payment_type, created_at
+                SELECT sale_id, sale_code, customer_name, total_amount, discount_amount,
+                       net_amount, payment_type, created_at
                 FROM sales
                 ORDER BY sale_id DESC
+                LIMIT ? OFFSET ?
                 """;
-
-        return jdbcTemplate.query(sql, (rs, rowNum) -> {
-            SaleResponse response = new SaleResponse();
-            response.setSaleId(rs.getInt("sale_id"));
-            response.setSaleCode(rs.getString("sale_code"));
-            response.setCustomerName(rs.getString("customer_name"));
-            response.setTotalAmount(rs.getBigDecimal("total_amount"));
-            response.setDiscountAmount(rs.getBigDecimal("discount_amount"));
-            response.setNetAmount(rs.getBigDecimal("net_amount"));
-            response.setPaymentType(rs.getString("payment_type"));
-            response.setCreatedAt(rs.getTimestamp("created_at"));
-            return response;
-        });
+        return jdbcTemplate.query(sql, this::mapSaleRow, size, offset);
     }
 
+    // ─── Count total ──────────────────────────────────────────────────────────
+    public long countAll() {
+        String sql = "SELECT COUNT(*) FROM sales";
+        Long count = jdbcTemplate.queryForObject(sql, Long.class);
+        return count != null ? count : 0L;
+    }
+
+    // ─── Get by ID ────────────────────────────────────────────────────────────
     public SaleResponse getSaleById(Integer saleId) {
         String sql = """
-                SELECT sale_id, sale_code, customer_name, total_amount, discount_amount, net_amount, payment_type, created_at
+                SELECT sale_id, sale_code, customer_name, total_amount, discount_amount,
+                       net_amount, payment_type, created_at
                 FROM sales
                 WHERE sale_id = ?
                 """;
-
-        List<SaleResponse> results = jdbcTemplate.query(sql, (rs, rowNum) -> {
-            SaleResponse response = new SaleResponse();
-            response.setSaleId(rs.getInt("sale_id"));
-            response.setSaleCode(rs.getString("sale_code"));
-            response.setCustomerName(rs.getString("customer_name"));
-            response.setTotalAmount(rs.getBigDecimal("total_amount"));
-            response.setDiscountAmount(rs.getBigDecimal("discount_amount"));
-            response.setNetAmount(rs.getBigDecimal("net_amount"));
-            response.setPaymentType(rs.getString("payment_type"));
-            response.setCreatedAt(rs.getTimestamp("created_at"));
-            return response;
-        }, saleId);
-
+        List<SaleResponse> results = jdbcTemplate.query(sql, this::mapSaleRow, saleId);
         return results.isEmpty() ? null : results.get(0);
     }
 
+    // ─── Get by Code ──────────────────────────────────────────────────────────
+    public SaleResponse getSaleByCode(String saleCode) {
+        String sql = """
+                SELECT sale_id, sale_code, customer_name, total_amount, discount_amount,
+                       net_amount, payment_type, created_at
+                FROM sales
+                WHERE sale_code = ?
+                """;
+        List<SaleResponse> results = jdbcTemplate.query(sql, this::mapSaleRow, saleCode);
+        return results.isEmpty() ? null : results.get(0);
+    }
+
+    // ─── Get sale items ───────────────────────────────────────────────────────
     public List<SaleItemResponse> getSaleItemsBySaleId(Integer saleId) {
         String sql = """
                 SELECT sale_item_id, product_id, unit_price, quantity, sub_amount
@@ -113,7 +127,6 @@ public class SaleRepository {
                 WHERE sale_id = ?
                 ORDER BY sale_item_id ASC
                 """;
-
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             SaleItemResponse item = new SaleItemResponse();
             item.setSaleItemId(rs.getInt("sale_item_id"));
@@ -125,36 +138,43 @@ public class SaleRepository {
         }, saleId);
     }
 
-    public int updateSale(Integer saleId, SaleCreateRequest request) {
+    // ─── Update by Code ───────────────────────────────────────────────────────
+    public int updateSaleByCode(String saleCode, SaleCreateRequest request) {
         String sql = """
                 UPDATE sales
-                SET sale_code = ?, customer_name = ?, total_amount = ?, discount_amount = ?, net_amount = ?, payment_type = ?
-                WHERE sale_id = ?
+                SET customer_name = ?, total_amount = ?, discount_amount = ?,
+                    net_amount = ?, payment_type = ?
+                WHERE sale_code = ?
                 """;
-
         return jdbcTemplate.update(sql,
-                request.getSaleCode(),
                 request.getCustomerName(),
                 request.getTotalAmount(),
                 request.getDiscountAmount(),
                 request.getNetAmount(),
                 request.getPaymentType(),
-                saleId);
+                saleCode);
     }
 
+    // ─── Delete ───────────────────────────────────────────────────────────────
     public void deleteSaleItemsBySaleId(Integer saleId) {
-        String sql = "DELETE FROM sale_items WHERE sale_id = ?";
-        jdbcTemplate.update(sql, saleId);
+        jdbcTemplate.update("DELETE FROM sale_items WHERE sale_id = ?", saleId);
     }
 
-    public int deleteSale(Integer saleId) {
-        String sql = "DELETE FROM sales WHERE sale_id = ?";
-        return jdbcTemplate.update(sql, saleId);
+    public int deleteSaleByCode(String saleCode) {
+        String sql = "DELETE FROM sales WHERE sale_code = ?";
+        return jdbcTemplate.update(sql, saleCode);
     }
 
+    // ─── Existence checks ─────────────────────────────────────────────────────
     public boolean existsById(Integer saleId) {
         String sql = "SELECT COUNT(*) FROM sales WHERE sale_id = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, saleId);
+        return count != null && count > 0;
+    }
+
+    public boolean existsByCode(String saleCode) {
+        String sql = "SELECT COUNT(*) FROM sales WHERE sale_code = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, saleCode);
         return count != null && count > 0;
     }
 }

@@ -1,5 +1,6 @@
 package com.example.demo.service.impl;
 
+import com.example.demo.dto.PagedResponse;
 import com.example.demo.dto.sale.SaleCreateRequest;
 import com.example.demo.dto.sale.SaleResponse;
 import com.example.demo.repository.SaleRepository;
@@ -7,6 +8,8 @@ import com.example.demo.service.SaleService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -14,65 +17,93 @@ public class SaleServiceImpl implements SaleService {
 
     private final SaleRepository saleRepository;
 
+    private static final DateTimeFormatter CODE_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
     public SaleServiceImpl(SaleRepository saleRepository) {
         this.saleRepository = saleRepository;
     }
 
+    // ─── Create with auto-generated code "POS-{yyyyMMddHHmmss}" ─────────────
     @Override
     @Transactional
     public SaleResponse createSale(SaleCreateRequest request) {
-        Integer saleId = saleRepository.createSale(request);
+        String saleCode = "POS-" + LocalDateTime.now().format(CODE_FORMATTER);
+
+        Integer saleId = saleRepository.createSale(saleCode, request);
 
         if (request.getItems() != null && !request.getItems().isEmpty()) {
             saleRepository.createSaleItems(saleId, request.getItems());
         }
 
-        return getSaleDetail(saleId);
+        return buildSaleDetail(saleRepository.getSaleById(saleId));
     }
 
+    // ─── Get all paginated ────────────────────────────────────────────────────
     @Override
-    public List<SaleResponse> getAllSales() {
-        return saleRepository.getAllSales();
+    public PagedResponse<SaleResponse> getAllSales(int page, int size) {
+        if (page < 0) throw new IllegalArgumentException("Page index must not be less than zero");
+        if (size < 1) throw new IllegalArgumentException("Page size must not be less than one");
+
+        List<SaleResponse> data = saleRepository.getAllSales(page, size);
+        long total = saleRepository.countAll();
+        return new PagedResponse<>(data, page, size, total);
     }
 
+    // ─── Get by Code ──────────────────────────────────────────────────────────
     @Override
-    public SaleResponse getSaleDetail(Integer saleId) {
-        SaleResponse sale = saleRepository.getSaleById(saleId);
-
+    public SaleResponse getSaleByCode(String saleCode) {
+        if (saleCode == null || saleCode.isBlank()) {
+            throw new IllegalArgumentException("Sale code must not be blank");
+        }
+        SaleResponse sale = saleRepository.getSaleByCode(saleCode);
         if (sale == null) {
-            throw new RuntimeException("Sale not found with id: " + saleId);
+            throw new RuntimeException("Sale not found with code: " + saleCode);
         }
-
-        sale.setItems(saleRepository.getSaleItemsBySaleId(saleId));
-        return sale;
+        return buildSaleDetail(sale);
     }
 
+    // ─── Update by Code ───────────────────────────────────────────────────────
     @Override
     @Transactional
-    public SaleResponse updateSale(Integer saleId, SaleCreateRequest request) {
-        if (!saleRepository.existsById(saleId)) {
-            throw new RuntimeException("Sale not found with id: " + saleId);
+    public SaleResponse updateSale(String saleCode, SaleCreateRequest request) {
+        if (saleCode == null || saleCode.isBlank()) {
+            throw new IllegalArgumentException("Sale code must not be blank");
+        }
+        SaleResponse existing = saleRepository.getSaleByCode(saleCode);
+        if (existing == null) {
+            throw new RuntimeException("Sale not found with code: " + saleCode);
         }
 
-        saleRepository.updateSale(saleId, request);
+        saleRepository.updateSaleByCode(saleCode, request);
 
-        saleRepository.deleteSaleItemsBySaleId(saleId);
-
+        // Replace sale items
+        saleRepository.deleteSaleItemsBySaleId(existing.getSaleId());
         if (request.getItems() != null && !request.getItems().isEmpty()) {
-            saleRepository.createSaleItems(saleId, request.getItems());
+            saleRepository.createSaleItems(existing.getSaleId(), request.getItems());
         }
 
-        return getSaleDetail(saleId);
+        return buildSaleDetail(saleRepository.getSaleByCode(saleCode));
     }
 
+    // ─── Delete by Code ───────────────────────────────────────────────────────
     @Override
     @Transactional
-    public void deleteSale(Integer saleId) {
-        if (!saleRepository.existsById(saleId)) {
-            throw new RuntimeException("Sale not found with id: " + saleId);
+    public void deleteSale(String saleCode) {
+        if (saleCode == null || saleCode.isBlank()) {
+            throw new IllegalArgumentException("Sale code must not be blank");
         }
+        SaleResponse existing = saleRepository.getSaleByCode(saleCode);
+        if (existing == null) {
+            throw new RuntimeException("Sale not found with code: " + saleCode);
+        }
+        saleRepository.deleteSaleItemsBySaleId(existing.getSaleId());
+        saleRepository.deleteSaleByCode(saleCode);
+    }
 
-        saleRepository.deleteSaleItemsBySaleId(saleId);
-        saleRepository.deleteSale(saleId);
+    // ─── Helper: attach sale items to a sale response ─────────────────────────
+    private SaleResponse buildSaleDetail(SaleResponse sale) {
+        sale.setItems(saleRepository.getSaleItemsBySaleId(sale.getSaleId()));
+        return sale;
     }
 }

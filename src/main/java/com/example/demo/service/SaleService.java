@@ -1,21 +1,18 @@
 package com.example.demo.service;
 
-
+import com.example.demo.dto.PagedResponse;
 import com.example.demo.dto.sale.SaleCreateRequest;
 import com.example.demo.dto.sale.SaleResponse;
-
-import java.util.List;
 
 public interface SaleService {
 
     SaleResponse createSale(SaleCreateRequest request);
 
-    List<SaleResponse> getAllSales();
+    PagedResponse<SaleResponse> getAllSales(int page, int size);
 
-    SaleResponse getSaleDetail(Integer saleId);
+    SaleResponse getSaleByCode(String saleCode);
 
-    SaleResponse updateSale(Integer saleId, SaleCreateRequest request);
+    SaleResponse updateSale(String saleCode, SaleCreateRequest request);
 
-    void deleteSale(Integer saleId);
+    void deleteSale(String saleCode);
 }
-
