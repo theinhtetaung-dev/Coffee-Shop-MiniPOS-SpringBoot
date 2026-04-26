@@ -24,7 +24,6 @@ public class SaleServiceImpl implements SaleService {
         this.saleRepository = saleRepository;
     }
 
-    // ─── Create with auto-generated code "POS-{yyyyMMddHHmmss}" ─────────────
     @Override
     @Transactional
     public SaleResponse createSale(SaleCreateRequest request) {
@@ -39,7 +38,6 @@ public class SaleServiceImpl implements SaleService {
         return buildSaleDetail(saleRepository.getSaleById(saleId));
     }
 
-    // ─── Get all paginated ────────────────────────────────────────────────────
     @Override
     public PagedResponse<SaleResponse> getAllSales(int page, int size) {
         if (page < 0) throw new IllegalArgumentException("Page index must not be less than zero");
@@ -50,7 +48,6 @@ public class SaleServiceImpl implements SaleService {
         return new PagedResponse<>(data, page, size, total);
     }
 
-    // ─── Get by Code ──────────────────────────────────────────────────────────
     @Override
     public SaleResponse getSaleByCode(String saleCode) {
         if (saleCode == null || saleCode.isBlank()) {
@@ -63,7 +60,6 @@ public class SaleServiceImpl implements SaleService {
         return buildSaleDetail(sale);
     }
 
-    // ─── Update by Code ───────────────────────────────────────────────────────
     @Override
     @Transactional
     public SaleResponse updateSale(String saleCode, SaleCreateRequest request) {
@@ -86,7 +82,6 @@ public class SaleServiceImpl implements SaleService {
         return buildSaleDetail(saleRepository.getSaleByCode(saleCode));
     }
 
-    // ─── Delete by Code ───────────────────────────────────────────────────────
     @Override
     @Transactional
     public void deleteSale(String saleCode) {
@@ -101,7 +96,6 @@ public class SaleServiceImpl implements SaleService {
         saleRepository.deleteSaleByCode(saleCode);
     }
 
-    // ─── Helper: attach sale items to a sale response ─────────────────────────
     private SaleResponse buildSaleDetail(SaleResponse sale) {
         sale.setItems(saleRepository.getSaleItemsBySaleId(sale.getSaleId()));
         return sale;

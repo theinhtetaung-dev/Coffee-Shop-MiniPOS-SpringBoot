@@ -19,7 +19,6 @@ public class CategoryServiceImpl implements CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
-    // ─── Create with auto-generated code "C-{lastId+1}" ─────────────────────
     @Override
     @Transactional
     public CategoryResponse createCategory(CategoryCreateRequest request) {
@@ -30,7 +29,6 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.getCategoryById(newId);
     }
 
-    // ─── Get all paginated ────────────────────────────────────────────────────
     @Override
     public PagedResponse<CategoryResponse> getAllCategories(int page, int size) {
         if (page < 0) throw new IllegalArgumentException("Page index must not be less than zero");
@@ -41,7 +39,6 @@ public class CategoryServiceImpl implements CategoryService {
         return new PagedResponse<>(data, page, size, total);
     }
 
-    // ─── Get by Code ──────────────────────────────────────────────────────────
     @Override
     public CategoryResponse getCategoryByCode(String code) {
         if (code == null || code.isBlank()) {
@@ -54,7 +51,6 @@ public class CategoryServiceImpl implements CategoryService {
         return category;
     }
 
-    // ─── Update by Code ───────────────────────────────────────────────────────
     @Override
     @Transactional
     public CategoryResponse updateCategory(String code, CategoryCreateRequest request) {
@@ -69,7 +65,6 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.getCategoryByCode(code);
     }
 
-    // ─── Delete by Code ───────────────────────────────────────────────────────
     @Override
     @Transactional
     public void deleteCategory(String code) {
