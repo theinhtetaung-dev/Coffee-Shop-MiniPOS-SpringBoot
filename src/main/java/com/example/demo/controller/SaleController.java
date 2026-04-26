@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.PagedResponse;
+import com.example.demo.dto.sale.SaleCodeRequest;
 import com.example.demo.dto.sale.SaleCreateRequest;
 import com.example.demo.dto.sale.SaleResponse;
 import com.example.demo.service.SaleService;
@@ -27,7 +28,7 @@ public class SaleController {
 
     @Operation(
             summary = "Create a new sale",
-            description = "Sale code is auto-generated as 'POS-{yyyyMMddHHmmss}'. Provide customer info, amounts, payment type, and at least one item."
+            description = "Sale code is auto-generated. Provide customer info, amounts, payment type, and at least one item."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Sale created successfully"),
@@ -42,7 +43,7 @@ public class SaleController {
 
     @Operation(
             summary = "Get all sales (paginated)",
-            description = "Returns a paginated list of sales ordered by newest first. Default: page=0, size=10."
+            description = "Returns a paginated list ordered by newest first. Default: page=0, size=10."
     )
     @ApiResponse(responseCode = "200", description = "Paginated list of sales")
     @GetMapping
@@ -55,50 +56,46 @@ public class SaleController {
     }
 
     @Operation(
-            summary = "Get sale by code",
-            description = "Fetch a single sale with its items using the auto-generated sale code, e.g. 'POS-20260425231207'."
+            summary = "Find sale by code",
+            description = "Fetch a sale with its items. Provide { \"saleCode\": \"POS-20260426120000\" } in the request body."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Sale found with items"),
             @ApiResponse(responseCode = "404", description = "Sale not found")
     })
-    @GetMapping("/code/{saleCode}")
+    @PostMapping("/find")
     public ResponseEntity<SaleResponse> getSaleByCode(
-            @Parameter(description = "Sale code, e.g. POS-20260425231207", example = "POS-20260425231207")
-            @PathVariable String saleCode) {
-        return ResponseEntity.ok(saleService.getSaleByCode(saleCode));
+            @Valid @RequestBody SaleCodeRequest request) {
+        return ResponseEntity.ok(saleService.getSaleByCode(request.getSaleCode()));
     }
 
     @Operation(
-            summary = "Update sale by code",
-            description = "Update sale details and replace all sale items. The sale code itself never changes."
+            summary = "Update sale",
+            description = "Provide { \"saleCode\": \"POS-...\", \"customerName\": \"...\", ... } in the request body."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Sale updated"),
-            @ApiResponse(responseCode = "400", description = "Validation failed"),
+            @ApiResponse(responseCode = "400", description = "Validation failed or sale code missing"),
             @ApiResponse(responseCode = "404", description = "Sale not found")
     })
-    @PutMapping("/code/{saleCode}")
+    @PutMapping
     public ResponseEntity<SaleResponse> updateSale(
-            @Parameter(description = "Sale code, e.g. POS-20260425231207", example = "POS-20260425231207")
-            @PathVariable String saleCode,
             @Valid @RequestBody SaleCreateRequest request) {
-        return ResponseEntity.ok(saleService.updateSale(saleCode, request));
+        return ResponseEntity.ok(saleService.updateSale(request.getSaleCode(), request));
     }
 
     @Operation(
-            summary = "Delete sale by code",
-            description = "Permanently delete a sale and all its items using the sale code."
+            summary = "Delete sale",
+            description = "Provide { \"saleCode\": \"POS-20260426120000\" } in the request body to delete that sale."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Sale deleted"),
             @ApiResponse(responseCode = "404", description = "Sale not found")
     })
-    @DeleteMapping("/code/{saleCode}")
+    @DeleteMapping
     public ResponseEntity<String> deleteSale(
-            @Parameter(description = "Sale code, e.g. POS-20260425231207", example = "POS-20260425231207")
-            @PathVariable String saleCode) {
-        saleService.deleteSale(saleCode);
-        return ResponseEntity.ok("Sale [" + saleCode + "] deleted successfully");
+            @Valid @RequestBody SaleCodeRequest request) {
+        saleService.deleteSale(request.getSaleCode());
+        return ResponseEntity.ok("Sale [" + request.getSaleCode() + "] deleted successfully");
     }
 }

@@ -20,18 +20,15 @@ public class CategoryRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // ─── Helper: row mapper ───────────────────────────────────────────────────
     private CategoryResponse mapRow(java.sql.ResultSet rs, int rowNum) throws java.sql.SQLException {
         CategoryResponse c = new CategoryResponse();
         c.setCategoryId(rs.getInt("category_id"));
         c.setCategoryCode(rs.getString("category_code"));
         c.setCategoryName(rs.getString("category_name"));
         c.setDescription(rs.getString("description"));
-        c.setCreatedAt(rs.getTimestamp("created_at"));
         return c;
     }
 
-    // ─── Create ───────────────────────────────────────────────────────────────
     public Integer createCategory(String categoryCode, CategoryCreateRequest request) {
         String sql = """
                 INSERT INTO categories (category_code, category_name, description)
@@ -50,17 +47,15 @@ public class CategoryRepository {
         return keyHolder.getKey().intValue();
     }
 
-    // ─── Get last ID (for auto-code generation) ───────────────────────────────
     public Integer getLastCategoryId() {
         String sql = "SELECT COALESCE(MAX(category_id), 0) FROM categories";
         return jdbcTemplate.queryForObject(sql, Integer.class);
     }
 
-    // ─── Get all (paginated) ──────────────────────────────────────────────────
     public List<CategoryResponse> getAllCategories(int page, int size) {
         int offset = page * size;
         String sql = """
-                SELECT category_id, category_code, category_name, description, created_at
+                SELECT category_id, category_code, category_name, description
                 FROM categories
                 ORDER BY category_id DESC
                 LIMIT ? OFFSET ?
@@ -68,17 +63,15 @@ public class CategoryRepository {
         return jdbcTemplate.query(sql, this::mapRow, size, offset);
     }
 
-    // ─── Count total ──────────────────────────────────────────────────────────
     public long countAll() {
         String sql = "SELECT COUNT(*) FROM categories";
         Long count = jdbcTemplate.queryForObject(sql, Long.class);
         return count != null ? count : 0L;
     }
 
-    // ─── Get by ID ────────────────────────────────────────────────────────────
     public CategoryResponse getCategoryById(Integer id) {
         String sql = """
-                SELECT category_id, category_code, category_name, description, created_at
+                SELECT category_id, category_code, category_name, description
                 FROM categories
                 WHERE category_id = ?
                 """;
@@ -86,10 +79,9 @@ public class CategoryRepository {
         return result.isEmpty() ? null : result.get(0);
     }
 
-    // ─── Get by Code ──────────────────────────────────────────────────────────
     public CategoryResponse getCategoryByCode(String code) {
         String sql = """
-                SELECT category_id, category_code, category_name, description, created_at
+                SELECT category_id, category_code, category_name, description
                 FROM categories
                 WHERE category_code = ?
                 """;

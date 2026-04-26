@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.PagedResponse;
+import com.example.demo.dto.category.CategoryCodeRequest;
 import com.example.demo.dto.category.CategoryCreateRequest;
 import com.example.demo.dto.category.CategoryResponse;
 import com.example.demo.service.CategoryService;
@@ -27,7 +28,7 @@ public class CategoryController {
 
     @Operation(
             summary = "Create a new category",
-            description = "Category code is auto-generated as 'C-{lastId+1}'. You only need to provide categoryName and description."
+            description = "Category code is auto-generated as 'C-{lastId+1}'. Provide categoryName and optional description in the body."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Category created successfully"),
@@ -55,50 +56,46 @@ public class CategoryController {
     }
 
     @Operation(
-            summary = "Get category by code",
-            description = "Fetch a single category using its auto-generated code, e.g. 'C-1'."
+            summary = "Find category by code",
+            description = "Fetch a single category. Provide { \"categoryCode\": \"C-1\" } in the request body."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Category found"),
             @ApiResponse(responseCode = "404", description = "Category not found")
     })
-    @GetMapping("/code/{code}")
+    @PostMapping("/find")
     public ResponseEntity<CategoryResponse> getCategoryByCode(
-            @Parameter(description = "Category code, e.g. C-1", example = "C-1")
-            @PathVariable String code) {
-        return ResponseEntity.ok(categoryService.getCategoryByCode(code));
+            @Valid @RequestBody CategoryCodeRequest request) {
+        return ResponseEntity.ok(categoryService.getCategoryByCode(request.getCategoryCode()));
     }
 
     @Operation(
-            summary = "Update category by code",
-            description = "Update categoryName or description using the category code. The code itself never changes."
+            summary = "Update category",
+            description = "Provide { \"categoryCode\": \"C-1\", \"categoryName\": \"...\", \"description\": \"...\" } in the request body."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Category updated"),
-            @ApiResponse(responseCode = "400", description = "Validation failed"),
+            @ApiResponse(responseCode = "400", description = "Validation failed or category code missing"),
             @ApiResponse(responseCode = "404", description = "Category not found")
     })
-    @PutMapping("/code/{code}")
+    @PutMapping
     public ResponseEntity<CategoryResponse> updateCategory(
-            @Parameter(description = "Category code, e.g. C-1", example = "C-1")
-            @PathVariable String code,
             @Valid @RequestBody CategoryCreateRequest request) {
-        return ResponseEntity.ok(categoryService.updateCategory(code, request));
+        return ResponseEntity.ok(categoryService.updateCategory(request.getCategoryCode(), request));
     }
 
     @Operation(
-            summary = "Delete category by code",
-            description = "Permanently delete a category using its code."
+            summary = "Delete category",
+            description = "Provide { \"categoryCode\": \"C-1\" } in the request body to delete that category."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Category deleted"),
             @ApiResponse(responseCode = "404", description = "Category not found")
     })
-    @DeleteMapping("/code/{code}")
+    @DeleteMapping
     public ResponseEntity<String> deleteCategory(
-            @Parameter(description = "Category code, e.g. C-1", example = "C-1")
-            @PathVariable String code) {
-        categoryService.deleteCategory(code);
-        return ResponseEntity.ok("Category [" + code + "] deleted successfully");
+            @Valid @RequestBody CategoryCodeRequest request) {
+        categoryService.deleteCategory(request.getCategoryCode());
+        return ResponseEntity.ok("Category [" + request.getCategoryCode() + "] deleted successfully");
     }
 }

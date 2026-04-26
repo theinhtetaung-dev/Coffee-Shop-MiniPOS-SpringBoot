@@ -73,7 +73,6 @@ public class SaleServiceImpl implements SaleService {
 
         saleRepository.updateSaleByCode(saleCode, request);
 
-        // Replace sale items
         saleRepository.deleteSaleItemsBySaleId(existing.getSaleId());
         if (request.getItems() != null && !request.getItems().isEmpty()) {
             saleRepository.createSaleItems(existing.getSaleId(), request.getItems());

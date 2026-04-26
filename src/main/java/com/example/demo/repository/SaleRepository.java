@@ -32,7 +32,6 @@ public class SaleRepository {
         response.setDiscountAmount(rs.getBigDecimal("discount_amount"));
         response.setNetAmount(rs.getBigDecimal("net_amount"));
         response.setPaymentType(rs.getString("payment_type"));
-        response.setCreatedAt(rs.getTimestamp("created_at"));
         return response;
     }
 
@@ -80,7 +79,7 @@ public class SaleRepository {
         int offset = page * size;
         String sql = """
                 SELECT sale_id, sale_code, customer_name, total_amount, discount_amount,
-                       net_amount, payment_type, created_at
+                       net_amount, payment_type
                 FROM sales
                 ORDER BY sale_id DESC
                 LIMIT ? OFFSET ?
@@ -99,7 +98,7 @@ public class SaleRepository {
     public SaleResponse getSaleById(Integer saleId) {
         String sql = """
                 SELECT sale_id, sale_code, customer_name, total_amount, discount_amount,
-                       net_amount, payment_type, created_at
+                       net_amount, payment_type
                 FROM sales
                 WHERE sale_id = ?
                 """;
@@ -111,7 +110,7 @@ public class SaleRepository {
     public SaleResponse getSaleByCode(String saleCode) {
         String sql = """
                 SELECT sale_id, sale_code, customer_name, total_amount, discount_amount,
-                       net_amount, payment_type, created_at
+                       net_amount, payment_type
                 FROM sales
                 WHERE sale_code = ?
                 """;

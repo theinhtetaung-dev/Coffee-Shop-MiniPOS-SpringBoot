@@ -12,6 +12,9 @@ import java.util.List;
 @Setter
 public class SaleCreateRequest {
 
+    // Used by the UPDATE endpoint — auto-generated in CREATE (ignored)
+    private String saleCode;
+
     @NotBlank(message = "Customer name is required")
     @Size(max = 100, message = "Customer name must not exceed 100 characters")
     private String customerName;
