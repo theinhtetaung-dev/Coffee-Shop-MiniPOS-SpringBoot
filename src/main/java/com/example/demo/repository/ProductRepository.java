@@ -11,12 +11,12 @@ import java.util.List;
 public class ProductRepository {
     private final JdbcTemplate jdbcTemplate;
 
-    public ProductRepository(JdbcTemplate jdbcTemplate){
+    public ProductRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    //Creating
-    public Integer createProduct(ProductCreateRequest request){
+    // Creating
+    public Integer createProduct(ProductCreateRequest request) {
         String sql = """
                 INSERT INTO products(product_code, product_name, description, price, category_id, is_available)
                 VALUES(?, ?, ?, ?, ?, ?)
@@ -27,14 +27,13 @@ public class ProductRepository {
                 request.getProductName(),
                 request.getDescription(),
                 request.getCategoryId(),
-                request.getIsAvailable()
-                );
+                request.getIsAvailable());
     }
 
-    //Getting All
-    public List<ProductResponse> getAllProducts(){
+    // Getting All
+    public List<ProductResponse> getAllProducts() {
         String sql = """
-                SELECT product_code, product_name, description, price, category_id, is_available, created_at 
+                SELECT product_code, product_name, description, price, category_id, is_available, created_at
                 FROM products
                 ORDER BY product id DESC
                 """;
@@ -46,16 +45,16 @@ public class ProductRepository {
             p.setDescription(rs.getString("description"));
             p.setPrice(rs.getBigDecimal("price"));
             p.setIsAvailable(rs.getBoolean("is_available"));
-            p.setCreated(rs.getTimestamp("created_at"));
+            p.setCreatedAt(rs.getTimestamp("created_at"));
             return p;
         });
     }
 
-    //Getting By Id
-    public ProductResponse getProductById(Integer id){
+    // Getting By Id
+    public ProductResponse getProductById(Integer id) {
         String sql = """
                 SELECT product_code, product_name, description, price, category_id, is_available, created_at
-                FROM products 
+                FROM products
                 WHERE id = ?
                 """;
         List<ProductResponse> list = jdbcTemplate.query(sql, (rs, rowNum) -> {
@@ -66,14 +65,14 @@ public class ProductRepository {
             p.setDescription(rs.getString("description"));
             p.setPrice(rs.getBigDecimal("price"));
             p.setIsAvailable(rs.getBoolean("is_available"));
-            p.setCreated(rs.getTimestamp("created_at"));
+            p.setCreatedAt(rs.getTimestamp("created_at"));
             return p;
         }, id);
-        return list.isEmpty() ? null: list.get(0);
+        return list.isEmpty() ? null : list.get(0);
     }
 
-    //Updating
-    public int updateProduct(Integer id, ProductCreateRequest request){
+    // Updating
+    public int updateProduct(Integer id, ProductCreateRequest request) {
         String sql = """
                 UPDATE products
                 SET product_code = ?, product_name, description = ?, price = ?, category_id = ?, isAvailable = ?
@@ -90,8 +89,8 @@ public class ProductRepository {
                 id);
     }
 
-    //Deleting
-    public int deleteProduct(Integer id){
+    // Deleting
+    public int deleteProduct(Integer id) {
         String sql = """
                 DELETE FROM products WHERE product_id = ?
                 """;
