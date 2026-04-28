@@ -1,19 +1,19 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.PagedResponse;
 import com.example.demo.dto.product.ProductCreateRequest;
 import com.example.demo.dto.product.ProductResponse;
-
-import java.util.List;
+import com.example.demo.dto.product.ProductUpdateRequest;
 
 public interface ProductService {
 
     ProductResponse createProduct(ProductCreateRequest request);
 
-    List<ProductResponse> getAllProducts();
+    PagedResponse<ProductResponse> getAllProducts(int page, int size);
 
-    ProductResponse getProductById(Integer id);
+    ProductResponse getProductByCode(String code);
 
-    ProductResponse updateProduct(Integer id, ProductCreateRequest request);
+    ProductResponse updateProduct(ProductUpdateRequest request);
 
-    void deleteProduct(Integer id);
+    void deleteProduct(String code);
 }

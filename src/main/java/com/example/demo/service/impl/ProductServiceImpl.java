@@ -1,7 +1,9 @@
 package com.example.demo.service.impl;
 
+import com.example.demo.dto.PagedResponse;
 import com.example.demo.dto.product.ProductCreateRequest;
 import com.example.demo.dto.product.ProductResponse;
+import com.example.demo.dto.product.ProductUpdateRequest;
 import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.CategoryRepository;
 import com.example.demo.service.ProductService;
@@ -23,57 +25,65 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductResponse createProduct(ProductCreateRequest request){
-
-        //Validating category exists
-        if (request.getCategoryId() != null && !categoryRepository.existsById(request.getCategoryId())){
-            throw new RuntimeException("Category not found");
+        // Validating category exists
+        if (!categoryRepository.existsById(request.getCategoryId())){
+            throw new RuntimeException("Category not found with ID: " + request.getCategoryId());
         }
-        productRepository.createProduct(request);
-        return productRepository.getAllProducts().get(0);
+
+        Integer lastId = productRepository.getLastProductId();
+        String productCode = String.format("P-%03d", lastId + 1);
+
+        Integer newId = productRepository.createProduct(productCode, request);
+        return productRepository.getProductById(newId);
     }
 
-    //Getting all products
     @Override
-    public List<ProductResponse> getAllProducts(){
-        return productRepository.getAllProducts();
+    public PagedResponse<ProductResponse> getAllProducts(int page, int size){
+        if (page < 0) throw new IllegalArgumentException("Page index must not be less than zero");
+        if (size < 1) throw new IllegalArgumentException("Page size must not be less than one");
+
+        List<ProductResponse> data = productRepository.getAllProducts(page, size);
+        long total = productRepository.countAll();
+        return new PagedResponse<>(data, page, size, total);
     }
 
-    //Getting Product By Id
     @Override
-    public ProductResponse getProductById(Integer id) {
-        ProductResponse product = productRepository.getProductById(id);
-
+    public ProductResponse getProductByCode(String code) {
+        if (code == null || code.isBlank()) {
+            throw new IllegalArgumentException("Product code must not be blank");
+        }
+        ProductResponse product = productRepository.getProductByCode(code);
         if (product == null) {
-            throw new RuntimeException("Product not found with id: " + id);
+            throw new RuntimeException("Product not found with code: " + code);
         }
         return product;
     }
 
-    //Updating Product
     @Override
     @Transactional
-    public ProductResponse updateProduct(Integer id, ProductCreateRequest request) {
-
-        if (!productRepository.existsById(id)) {
-            throw new RuntimeException("Product not found");
+    public ProductResponse updateProduct(ProductUpdateRequest request) {
+        if (!productRepository.existsByCode(request.getProductCode())) {
+            throw new RuntimeException("Product not found with code: " + request.getProductCode());
         }
 
-        if (request.getCategoryId() != null &&
-                !categoryRepository.existsById(request.getCategoryId())) {
-            throw new RuntimeException("Category not found");
+        if (!categoryRepository.existsById(request.getCategoryId())) {
+            throw new RuntimeException("Category not found with ID: " + request.getCategoryId());
         }
 
-        productRepository.updateProduct(id, request);
-        return productRepository.getProductById(id);
+        productRepository.updateProductByCode(request);
+        return productRepository.getProductByCode(request.getProductCode());
     }
 
     @Override
     @Transactional
-    public void deleteProduct(Integer id){
-        if (!productRepository.existsById(id)){
-            throw new RuntimeException("Product not found");
+    public void deleteProduct(String code){
+        if (code == null || code.isBlank()) {
+            throw new IllegalArgumentException("Product code must not be blank");
+        }
+        if (!productRepository.existsByCode(code)){
+            throw new RuntimeException("Product not found with code: " + code);
         }
 
-        productRepository.deleteProduct(id);
+        productRepository.deleteProductByCode(code);
     }
 }

@@ -43,8 +43,8 @@ public class CategoryController {
         @ApiResponse(responseCode = "200", description = "Paginated list of categories")
         @GetMapping
         public ResponseEntity<PagedResponse<CategoryResponse>> getAllCategories(
-                        @Parameter(description = "Zero-based page index", example = "0") @RequestParam(defaultValue = "0") int page,
-                        @Parameter(description = "Number of records per page", example = "10") @RequestParam(defaultValue = "10") int size) {
+                        @Parameter(description = "Zero-based page index", example = "0", required = true) @RequestParam int page,
+                        @Parameter(description = "Number of records per page", example = "10", required = true) @RequestParam int size) {
                 return ResponseEntity.ok(categoryService.getAllCategories(page, size));
         }
 

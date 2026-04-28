@@ -49,10 +49,10 @@ public class SaleController {
     @ApiResponse(responseCode = "200", description = "Paginated list of sales")
     @GetMapping
     public ResponseEntity<PagedResponse<SaleResponse>> getAllSales(
-            @Parameter(description = "Zero-based page index", example = "0")
-            @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Number of records per page", example = "10")
-            @RequestParam(defaultValue = "10") int size) {
+            @Parameter(description = "Zero-based page index", example = "0", required = true)
+            @RequestParam int page,
+            @Parameter(description = "Number of records per page", example = "10", required = true)
+            @RequestParam int size) {
         return ResponseEntity.ok(saleService.getAllSales(page, size));
     }
 

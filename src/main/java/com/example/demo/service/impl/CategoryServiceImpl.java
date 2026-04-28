@@ -24,7 +24,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public CategoryResponse createCategory(CategoryCreateRequest request) {
         Integer lastId = categoryRepository.getLastCategoryId();
-        String categoryCode = "C-" + (lastId + 1);
+        String categoryCode = String.format("C-%03d", lastId + 1);
         Integer newId = categoryRepository.createCategory(categoryCode, request);
         return categoryRepository.getCategoryById(newId);
     }
