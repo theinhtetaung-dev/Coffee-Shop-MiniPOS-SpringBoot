@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cho Khar — Products</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' }</script>
+  <link rel="stylesheet" href="../css/custom.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="bg-amber-50 dark:bg-gray-950 min-h-screen transition-colors duration-300">
+
+<div id="sidebarOverlay" class="fixed inset-0 bg-black/40 z-30 hidden lg:hidden"></div>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white dark:bg-gray-900 shadow-2xl z-40 flex flex-col -translate-x-full lg:translate-x-0">
+  <div class="flex items-center gap-3 px-6 py-5 border-b border-amber-100 dark:border-gray-800">
+    <img src="../assets/logo.svg" alt="Cho Khar Logo" class="w-10 h-10" />
+    <div>
+      <h1 class="font-extrabold text-lg text-amber-800 dark:text-amber-400 leading-tight">Cho Khar</h1>
+      <p class="text-xs text-gray-400 dark:text-gray-500">Coffee Shop POS</p>
+    </div>
+  </div>
+  <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+    <p class="text-xs font-semibold text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-3 px-2">Main Menu</p>
+    <a href="../index.html" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-gray-600 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-gray-800 transition">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      Dashboard
+    </a>
+    <a href="categories.html" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-gray-600 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-gray-800 transition">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+      Categories
+    </a>
+    <a href="products.html" class="nav-link active flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-gray-600 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-gray-800 transition">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+      Products
+    </a>
+    <a href="sales.html" class="nav-link flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-gray-600 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-gray-800 transition">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      Sales
+    </a>
+  </nav>
+  <div class="px-6 py-4 border-t border-amber-100 dark:border-gray-800 text-center">
+    <p class="text-xs text-gray-400 dark:text-gray-600">© 2026 Cho Khar POS</p>
+  </div>
+</aside>
+
+<div class="lg:ml-64 min-h-screen flex flex-col">
+  <header class="sticky top-0 z-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-amber-100 dark:border-gray-800 flex items-center justify-between px-6 py-3 shadow-sm">
+    <div class="flex items-center gap-3">
+      <button id="sidebarToggle" class="lg:hidden p-2 rounded-xl hover:bg-amber-100 dark:hover:bg-gray-800 transition">
+        <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <h2 class="font-bold text-gray-700 dark:text-gray-200 text-lg">Products</h2>
+    </div>
+    <button id="themeToggle" class="p-2 rounded-xl bg-amber-100 dark:bg-gray-800 hover:bg-amber-200 dark:hover:bg-gray-700 transition">
+      <svg id="themeIcon" class="w-5 h-5 text-amber-700 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+      </svg>
+    </button>
+  </header>
+
+  <main class="flex-1 p-6 space-y-6">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div>
+        <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">Manage Products</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Total: <span id="totalCount" class="font-semibold text-amber-700 dark:text-amber-400">—</span></p>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm">
+          <label class="text-gray-500 dark:text-gray-400">Page Size</label>
+          <select id="pageSizeSelect" class="bg-transparent text-gray-700 dark:text-gray-300 outline-none">
+            <option value="5">5</option><option value="10" selected>10</option><option value="20">20</option>
+          </select>
+        </div>
+        <button id="btnAdd" class="flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-xl font-semibold text-sm transition shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Add Product
+        </button>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-amber-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+            <tr>
+              <th class="px-5 py-3.5 text-left font-semibold">#</th>
+              <th class="px-5 py-3.5 text-left font-semibold">Code</th>
+              <th class="px-5 py-3.5 text-left font-semibold">Name</th>
+              <th class="px-5 py-3.5 text-left font-semibold">Price</th>
+              <th class="px-5 py-3.5 text-left font-semibold">Category</th>
+              <th class="px-5 py-3.5 text-center font-semibold">Available</th>
+              <th class="px-5 py-3.5 text-center font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productTableBody" class="divide-y divide-gray-50 dark:divide-gray-800 text-gray-700 dark:text-gray-300">
+            <tr><td colspan="7" class="py-10 text-center text-gray-400">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="paginationContainer" class="flex items-center justify-center gap-2 px-5 py-4 border-t border-gray-100 dark:border-gray-800 flex-wrap"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal -->
+<div id="productModal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-backdrop bg-black/50">
+  <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+      <h3 id="modalTitle" class="font-bold text-lg text-gray-800 dark:text-gray-100">Add Product</h3>
+      <button id="btnCloseModal" class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition">
+        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <form id="productForm" class="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
+      <input type="hidden" id="editCode" />
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Product Name <span class="text-red-500">*</span></label>
+          <input id="inputName" type="text" placeholder="e.g. Latte" required
+            class="w-full border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Price (K) <span class="text-red-500">*</span></label>
+          <input id="inputPrice" type="number" step="0.01" min="0" placeholder="0.00" required
+            class="w-full border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Category <span class="text-red-500">*</span></label>
+        <select id="inputCategory" required
+          class="w-full border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500">
+          <option value="">— Select category —</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Description</label>
+        <textarea id="inputDesc" rows="2" placeholder="Optional…"
+          class="w-full border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-xl px-4 py-2.5 text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"></textarea>
+      </div>
+      <div class="flex items-center gap-3">
+        <input type="checkbox" id="inputAvailable" checked class="w-4 h-4 accent-amber-600" />
+        <label for="inputAvailable" class="text-sm font-medium text-gray-600 dark:text-gray-400">Available for sale</label>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="button" id="btnCancel" class="flex-1 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 py-2.5 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition">Cancel</button>
+        <button type="submit" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-2.5 rounded-xl font-semibold transition">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="../js/api.js"></script>
+<script src="../js/app.js"></script>
+<script src="../js/products.js"></script>
+</body>
+</html>

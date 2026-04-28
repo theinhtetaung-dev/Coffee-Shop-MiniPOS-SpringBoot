@@ -1,0 +1,84 @@
+/* custom.css – Cho Khar POS extra styles */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+* { font-family: 'Outfit', sans-serif; }
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #b45309; border-radius: 999px; }
+
+/* ---- Sidebar active link ---- */
+.nav-link.active {
+    background: linear-gradient(135deg, #b45309, #78350f);
+    color: #fff !important;
+    box-shadow: 0 4px 15px rgba(180,83,9,.4);
+}
+.dark .nav-link.active {
+    box-shadow: 0 4px 15px rgba(251,191,36,.25);
+}
+
+/* ---- Stat card gradient overlays ---- */
+.stat-card-1 { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); }
+.stat-card-2 { background: linear-gradient(135deg, #d1fae5 0%, #6ee7b7 100%); }
+.stat-card-3 { background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%); }
+.stat-card-4 { background: linear-gradient(135deg, #ede9fe 0%, #c4b5fd 100%); }
+.dark .stat-card-1 { background: linear-gradient(135deg, #78350f 0%, #92400e 100%); }
+.dark .stat-card-2 { background: linear-gradient(135deg, #065f46 0%, #047857 100%); }
+.dark .stat-card-3 { background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%); }
+.dark .stat-card-4 { background: linear-gradient(135deg, #4c1d95 0%, #6d28d9 100%); }
+
+/* ---- Chart smooth pulse ---- */
+@keyframes pulse-ring {
+    0%   { transform: scale(.95); opacity: .8; }
+    70%  { transform: scale(1);   opacity: 0; }
+    100% { transform: scale(.95); opacity: 0; }
+}
+.pulse-dot::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: #f59e0b;
+    animation: pulse-ring 1.5s ease-out infinite;
+}
+
+/* ---- Skeleton loader ---- */
+@keyframes shimmer {
+    0%   { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+}
+.skeleton {
+    background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+    background-size: 400px 100%;
+    animation: shimmer 1.4s ease infinite;
+    border-radius: 8px;
+}
+.dark .skeleton {
+    background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+    background-size: 400px 100%;
+}
+
+/* ---- Table row hover ---- */
+tbody tr { transition: background .15s; }
+
+/* ---- Modal backdrop ---- */
+.modal-backdrop {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+/* ---- Sidebar transition ---- */
+#sidebar { transition: transform .3s cubic-bezier(.4,0,.2,1); }
+
+/* ---- Spin loader ---- */
+.spin { animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---- SweetAlert dark override ---- */
+.dark .swal2-popup {
+    background: #1f2937 !important;
+    color: #f9fafb !important;
+}
+.dark .swal2-title, .dark .swal2-html-container { color: #f9fafb !important; }
+.dark .swal2-confirm { background: #b45309 !important; }

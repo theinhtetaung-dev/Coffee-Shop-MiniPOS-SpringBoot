@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#b45309;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#78350f;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fde68a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Outer circle background -->
+  <circle cx="100" cy="100" r="95" fill="url(#grad1)" />
+
+  <!-- Cup body -->
+  <rect x="55" y="85" width="80" height="60" rx="8" ry="8" fill="url(#grad2)" />
+
+  <!-- Cup rim -->
+  <rect x="50" y="80" width="90" height="12" rx="6" ry="6" fill="#fef3c7" />
+
+  <!-- Cup handle -->
+  <path d="M135 95 Q158 95 158 115 Q158 135 135 135" stroke="#fef3c7" stroke-width="7" fill="none" stroke-linecap="round" />
+
+  <!-- Steam lines -->
+  <path d="M75 72 Q78 62 75 52" stroke="#fde68a" stroke-width="3.5" fill="none" stroke-linecap="round" />
+  <path d="M95 68 Q98 55 95 45" stroke="#fde68a" stroke-width="3.5" fill="none" stroke-linecap="round" />
+  <path d="M115 72 Q118 62 115 52" stroke="#fde68a" stroke-width="3.5" fill="none" stroke-linecap="round" />
+
+  <!-- Coffee liquid inside cup -->
+  <rect x="57" y="97" width="76" height="46" rx="4" ry="4" fill="#92400e" />
+
+  <!-- Latte art swirl -->
+  <circle cx="95" cy="118" r="15" fill="#b45309" opacity="0.7"/>
+  <path d="M82 118 Q95 110 108 118 Q95 126 82 118" fill="#fde68a" opacity="0.9"/>
+
+  <!-- Text "ck" inside cup subtle -->
+  <!-- Brand text below -->
+</svg>
