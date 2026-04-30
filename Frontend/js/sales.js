@@ -253,6 +253,77 @@ function formatDate(ts) {
     return new Date(ts).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
+// ── Search by Sale Code ───────────────────────────────────────────────────────
+let isSearchMode = false;
+
+async function searchBySaleCode() {
+    const code = document.getElementById('searchSaleCode').value.trim();
+    if (!code) { clearSearch(); return; }
+
+    const clearBtn = document.getElementById('btnClearSearch');
+    clearBtn.classList.remove('hidden');
+
+    const tbody = document.getElementById('salesTableBody');
+    tbody.innerHTML = `<tr><td colspan="9" class="py-10 text-center">
+      <div class="inline-flex items-center gap-2 text-gray-400">
+        <svg class="spin w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+        </svg> Searching…
+      </div></td></tr>`;
+
+    try {
+        const s = await API.sales.find(code);
+        isSearchMode = true;
+        document.getElementById('totalCount').textContent = '1 (search result)';
+        document.getElementById('paginationContainer').innerHTML = '';
+
+        tbody.innerHTML = `
+          <tr class="hover:bg-amber-50 dark:hover:bg-gray-800/50 transition">
+            <td class="px-5 py-3.5 text-gray-400">1</td>
+            <td class="px-5 py-3.5">
+              <span class="font-mono text-xs bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 px-2 py-0.5 rounded">${s.saleCode}</span>
+            </td>
+            <td class="px-5 py-3.5 font-medium">${s.customerName || '—'}</td>
+            <td class="px-5 py-3.5 text-right">${(s.totalAmount || 0).toLocaleString('my-MM')} K</td>
+            <td class="px-5 py-3.5 text-right text-red-500 dark:text-red-400">${(s.discountAmount || 0).toLocaleString('my-MM')} K</td>
+            <td class="px-5 py-3.5 text-right font-bold text-green-700 dark:text-green-400">${(s.netAmount || 0).toLocaleString('my-MM')} K</td>
+            <td class="px-5 py-3.5 text-center">
+              <span class="px-2 py-0.5 rounded-full text-xs font-medium ${payBadge(s.paymentType)}">${s.paymentType || '—'}</span>
+            </td>
+            <td class="px-5 py-3.5 text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">${formatDate(s.createdAt)}</td>
+            <td class="px-5 py-3.5">
+              <div class="flex items-center justify-center gap-2">
+                <button onclick="viewSale('${s.saleCode}')"
+                  class="p-1.5 rounded-lg bg-green-50 dark:bg-green-900/40 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900 transition" title="View">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                </button>
+                <button onclick="deleteSale('${s.saleCode}')"
+                  class="p-1.5 rounded-lg bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900 transition" title="Delete">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>`;
+    } catch (e) {
+        isSearchMode = true;
+        document.getElementById('totalCount').textContent = '0 (search result)';
+        document.getElementById('paginationContainer').innerHTML = '';
+        tbody.innerHTML = `<tr><td colspan="9" class="py-10 text-center">
+          <div class="flex flex-col items-center gap-2 text-gray-400">
+            <svg class="w-10 h-10 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <p class="text-sm">No sale found for code "<strong class="text-gray-600 dark:text-gray-300">${code}</strong>"</p>
+          </div></td></tr>`;
+    }
+}
+
+function clearSearch() {
+    isSearchMode = false;
+    document.getElementById('searchSaleCode').value = '';
+    document.getElementById('btnClearSearch').classList.add('hidden');
+    loadSales(0);
+}
+
 // ── Event listeners ───────────────────────────────────────────────────────────
 document.getElementById('btnAdd').addEventListener('click', openModal);
 document.getElementById('btnCloseModal').addEventListener('click', closeModal);
@@ -263,6 +334,17 @@ document.getElementById('detailModal').addEventListener('click', e => { if (e.ta
 document.getElementById('btnAddItem').addEventListener('click', () => addItemRow());
 document.getElementById('inputDiscount').addEventListener('input', updateSummary);
 document.getElementById('pageSizeSelect').addEventListener('change', e => { pageSize = +e.target.value; loadSales(0); });
+
+// Search event listeners
+document.getElementById('searchSaleCode').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); searchBySaleCode(); }
+});
+document.getElementById('searchSaleCode').addEventListener('input', e => {
+    const val = e.target.value.trim();
+    document.getElementById('btnClearSearch').classList.toggle('hidden', !val);
+    if (!val && isSearchMode) clearSearch();
+});
+document.getElementById('btnClearSearch').addEventListener('click', clearSearch);
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
